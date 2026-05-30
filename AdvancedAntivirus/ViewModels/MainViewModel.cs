@@ -1,17 +1,17 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
 using AdvancedAntivirus.Models;
 using AdvancedAntivirus.Services;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 
 namespace AdvancedAntivirus.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
-        private readonly AntivirusService _antivirusService;
-        private readonly RealTimeMonitor _realTimeMonitor;
+        private AntivirusService? _antivirusService;
+        private RealTimeMonitor? _realTimeMonitor;
         private readonly QuarantineService _quarantineService;
 
         [ObservableProperty]
@@ -21,15 +21,36 @@ namespace AdvancedAntivirus.ViewModels
         private string _statusText = "Sistem Güvende";
 
         [ObservableProperty]
-        private bool _isScanning;
+        private bool _isSetupMode;
 
         public ObservableCollection<ScanReport> RecentThreats { get; } = new();
 
         public MainViewModel()
         {
-            var settings = UserSettings.Load();
-            _antivirusService = new AntivirusService(settings.VirusTotalApiKey);
             _quarantineService = new QuarantineService();
+            var settings = UserSettings.Load();
+
+            if (!settings.IsSetupComplete)
+            {
+                IsSetupMode = true;
+                var setupVm = new SetupViewModel();
+                setupVm.OnSetupComplete += InitializeApp;
+                CurrentView = setupVm;
+            }
+            else
+            {
+                InitializeApp();
+            }
+        }
+
+        private void InitializeApp()
+        {
+            var settings = UserSettings.Load();
+            settings.IsSetupComplete = true;
+            settings.Save();
+
+            IsSetupMode = false;
+            _antivirusService = new AntivirusService(settings.VirusTotalApiKey);
             _realTimeMonitor = new RealTimeMonitor(_antivirusService);
 
             _realTimeMonitor.OnThreatDetected += (report) =>
@@ -64,9 +85,9 @@ namespace AdvancedAntivirus.ViewModels
 
         public async Task StartScan(string path)
         {
-            IsScanning = true;
-            StatusText = "Tarama Yapılıyor...";
+            if (_antivirusService == null) return;
 
+            StatusText = "Tarama Yapılıyor...";
             var results = await _antivirusService.FullScanFileAsync(path);
             foreach (var report in results)
             {
@@ -76,32 +97,18 @@ namespace AdvancedAntivirus.ViewModels
                     _quarantineService.QuarantineFile(report.FilePath);
                 }
             }
-
-            IsScanning = false;
             StatusText = RecentThreats.Count > 0 ? "Tehditler Temizlendi" : "Sistem Güvende";
         }
     }
 
     public class DashboardViewModel : ObservableObject { }
-
     public partial class ScanViewModel : ObservableObject
     {
         private readonly MainViewModel _mainVm;
-
-        public ScanViewModel(MainViewModel mainVm)
-        {
-            _mainVm = mainVm;
-        }
-
+        public ScanViewModel(MainViewModel mainVm) => _mainVm = mainVm;
         [RelayCommand]
-        private async Task QuickScan()
-        {
-            // Simüle edilen hızlı tarama - masaüstünü tarayalım
-            string desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            await _mainVm.StartScan(desktop);
-        }
+        private async Task QuickScan() => await _mainVm.StartScan(Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
     }
-
     public class QuarantineViewModel : ObservableObject { }
     public class SettingsViewModel : ObservableObject { }
 }

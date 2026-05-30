@@ -6,9 +6,10 @@ namespace AdvancedAntivirus.Models
     public class UserSettings
     {
         public bool RealTimeProtection { get; set; } = true;
-        public string VirusTotalApiKey { get; set; } = "e41ec0b1997e421bc69f1e3223d2c6d02273e9089f8b8e473138876b175c1952";
+        public string VirusTotalApiKey { get; set; } = string.Empty;
         public bool DarkMode { get; set; } = true;
         public string InstallPath { get; set; } = string.Empty;
+        public bool IsSetupComplete { get; set; } = false;
 
         private static readonly string SettingsFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings.json");
 
