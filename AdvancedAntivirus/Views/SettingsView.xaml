@@ -1,1 +1,20 @@
-<UserControl x:Class="AdvancedAntivirus.Views.SettingsView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"><TextBlock Text="Ayarlar" Foreground="White" FontSize="24"/></UserControl>
+<UserControl x:Class="AdvancedAntivirus.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <StackPanel Margin="10">
+            <TextBlock Text="Ayarlar" FontSize="24" FontWeight="Bold" Foreground="White" Margin="0,0,0,20"/>
+
+            <TextBlock Text="VirusTotal API Anahtarı" Foreground="#A6ADC8" Margin="0,0,0,5"/>
+            <PasswordBox x:Name="ApiSecret" Background="#313244" Foreground="White" BorderThickness="0" Padding="10" Margin="0,0,0,20"/>
+
+            <CheckBox Content="Gerçek Zamanlı Koruma" IsChecked="True" Foreground="White" Margin="0,0,0,20"/>
+
+            <Button Content="Ayarları Kaydet" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Left"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

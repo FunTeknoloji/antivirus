@@ -11,7 +11,8 @@ namespace AdvancedAntivirus.Models
         public string InstallPath { get; set; } = string.Empty;
         public bool IsSetupComplete { get; set; } = false;
 
-        private static readonly string SettingsFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings.json");
+        private static readonly string SettingsDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "AdvancedAntivirus");
+        private static readonly string SettingsFile = Path.Combine(SettingsDir, "settings.json");
 
         public static UserSettings Load()
         {
@@ -31,6 +32,7 @@ namespace AdvancedAntivirus.Models
         {
             try
             {
+                if (!Directory.Exists(SettingsDir)) Directory.CreateDirectory(SettingsDir);
                 var json = JsonConvert.SerializeObject(this, Formatting.Indented);
                 File.WriteAllText(SettingsFile, json);
             }
