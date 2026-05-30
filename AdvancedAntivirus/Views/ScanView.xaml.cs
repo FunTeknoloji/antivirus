@@ -1,0 +1,1 @@
+namespace AdvancedAntivirus.Views { public partial class ScanView { public ScanView() { InitializeComponent(); } } }
